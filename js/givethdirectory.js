@@ -9,7 +9,7 @@ export class GivethDirectory {
         this.contract = this.web3.eth.contract(GivethDirectoryAbi).at(address);
     }
 
-    getStatus(cb) {
+    getState(cb) {
         const st = {};
         let nCampaigns;
         async.series([

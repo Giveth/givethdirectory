@@ -2,7 +2,7 @@
   "name": "givethdirectory",
   "version": "0.0.1",
   "description": "Giveth Campaign Directory",
-  "main": "js/givethdirectory.js",
+  "main": "dist/givethdirectory.js",
   "directories": {
     "test": "test"
   },
