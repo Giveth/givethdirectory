@@ -66,7 +66,7 @@ var GivethDirectory = exports.GivethDirectory = function () {
                             name: res[0],
                             description: res[1],
                             url: res[2],
-                            token: res[3].toNumber(),
+                            token: res[3],
                             vault: res[4],
                             milestoneTracker: res[5],
                             extra: res[6],
