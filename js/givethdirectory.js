@@ -3,7 +3,7 @@ import _ from "lodash";
 import MilestoneTracker from "milestonetracker";
 import { GivethDirectoryAbi, GivethDirectoryByteCode } from "../contracts/GivethDirectory.sol.js";
 
-export class GivethDirectory {
+export default class GivethDirectory {
 
     constructor(web3, address) {
         this.web3 = web3;
@@ -64,45 +64,45 @@ export class GivethDirectory {
             cb(null, st);
         });
     }
-}
 
-export function deploy(web3, opts, cb) {
-    let account;
-    let givethDirectory;
-    async.series([
-        (cb1) => {
-            if (opts.from) {
-                account = opts.from;
-                cb1();
-            } else {
-                web3.eth.getAccounts((err, _accounts) => {
-                    if (err) { cb(err); return; }
-                    if (_accounts.length === 0) return cb1(new Error("No account to deploy a contract"));
-                    account = _accounts[ 0 ];
+    static deploy(web3, opts, cb) {
+        let account;
+        let givethDirectory;
+        async.series([
+            (cb1) => {
+                if (opts.from) {
+                    account = opts.from;
                     cb1();
-                });
-            }
-        },
-        (cb2) => {
-            const contract = web3.eth.contract(GivethDirectoryAbi);
-            contract.new(
-                {
-                    from: account,
-                    data: GivethDirectoryByteCode,
-                    gas: 3000000,
-                    value: opts.value || 0,
-                },
-                (err, _contract) => {
-                    if (err) { cb2(err); return; }
-                    if (typeof _contract.address !== "undefined") {
-                        givethDirectory = new GivethDirectory(web3, _contract.address);
-                        cb2();
-                    }
-                });
-        },
-    ],
-    (err) => {
-        if (err) return cb(err);
-        cb(null, givethDirectory);
-    });
+                } else {
+                    web3.eth.getAccounts((err, _accounts) => {
+                        if (err) { cb(err); return; }
+                        if (_accounts.length === 0) return cb1(new Error("No account to deploy a contract"));
+                        account = _accounts[ 0 ];
+                        cb1();
+                    });
+                }
+            },
+            (cb2) => {
+                const contract = web3.eth.contract(GivethDirectoryAbi);
+                contract.new(
+                    {
+                        from: account,
+                        data: GivethDirectoryByteCode,
+                        gas: 3000000,
+                        value: opts.value || 0,
+                    },
+                    (err, _contract) => {
+                        if (err) { cb2(err); return; }
+                        if (typeof _contract.address !== "undefined") {
+                            givethDirectory = new GivethDirectory(web3, _contract.address);
+                            cb2();
+                        }
+                    });
+            },
+        ],
+        (err) => {
+            if (err) return cb(err);
+            cb(null, givethDirectory);
+        });
+    }
 }
