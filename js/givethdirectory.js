@@ -1,5 +1,6 @@
 import async from "async";
 import _ from "lodash";
+import MilestoneTracker from "milestonetracker";
 import { GivethDirectoryAbi, GivethDirectoryByteCode } from "../contracts/GivethDirectory.sol.js";
 
 export class GivethDirectory {
@@ -38,17 +39,23 @@ export class GivethDirectory {
                             "Obsoleted",
                             "Deleted",
                         ];
-                        st.campaigns.push({
+                        const c = {
                             name: res[ 0 ],
                             description: res[ 1 ],
                             url: res[ 2 ],
-                            token: res[ 3 ],
-                            vault: res[ 4 ],
-                            milestoneTracker: res[ 5 ],
+                            tokenAddress: res[ 3 ],
+                            vaultAddress: res[ 4 ],
+                            milestoneTrackerAddress: res[ 5 ],
                             extra: res[ 6 ],
                             status: campaigStatus[ res[ 7 ].toNumber() ],
+                        };
+                        const mt = new MilestoneTracker(this.web3, c.milestoneTrackerAddress);
+                        mt.getState((err2, mtState) => {
+                            if (err2) { cb1(err2); return; }
+                            c.milestoneTracker = mtState;
+                            st.campaigns.push(c);
+                            cb2();
                         });
-                        cb2();
                     });
                 }, cb1);
             },

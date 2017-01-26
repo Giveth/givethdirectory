@@ -17,6 +17,10 @@ var _lodash = require("lodash");
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
+var _milestonetracker = require("milestonetracker");
+
+var _milestonetracker2 = _interopRequireDefault(_milestonetracker);
+
 var _GivethDirectorySol = require("../contracts/GivethDirectory.sol.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -62,17 +66,25 @@ var GivethDirectory = exports.GivethDirectory = function () {
                             cb(err);return;
                         }
                         var campaigStatus = ["Preparing", "Active", "Obsoleted", "Deleted"];
-                        st.campaigns.push({
+                        var c = {
                             name: res[0],
                             description: res[1],
                             url: res[2],
-                            token: res[3],
-                            vault: res[4],
-                            milestoneTracker: res[5],
+                            tokenAddress: res[3],
+                            vaultAddress: res[4],
+                            milestoneTrackerAddress: res[5],
                             extra: res[6],
                             status: campaigStatus[res[7].toNumber()]
+                        };
+                        var mt = new _milestonetracker2.default(_this.web3, c.milestoneTrackerAddress);
+                        mt.getState(function (err2, mtState) {
+                            if (err2) {
+                                cb1(err2);return;
+                            }
+                            c.milestoneTracker = mtState;
+                            st.campaigns.push(c);
+                            cb2();
                         });
-                        cb2();
                     });
                 }, cb1);
             }], function (err) {
