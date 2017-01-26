@@ -78,7 +78,7 @@ function deployExample(cb) {
                 });
         },
         function(cb) {
-            givethDirectory.contract.addCampaign("Giveth",
+            givethDirectory.contract.addCampaign("Giveth Test",
                 "Development of Giveth. Donations 3.0",
                 "http://www.giveth.io",
                 "0xf19c536ab792f173b7ee62d9ccc51f4ed6180773",
