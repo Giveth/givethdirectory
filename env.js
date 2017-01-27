@@ -81,9 +81,9 @@ function deployExample(cb) {
             givethDirectory.contract.addCampaign("Giveth Test",
                 "Development of Giveth. Donations 3.0",
                 "http://www.giveth.io",
-                "0xf19c536ab792f173b7ee62d9ccc51f4ed6180773",
-                "0xd5abcc4c80fd01d8822f35f379fbcebf7a8b8679",
-                "0x0F593DCCe096c5C39Bd509123150707644Ad48DE",
+                "0x0",
+                vault.contract.address,
+                milestoneTracker.console.address,
                 "", {from: eth.accounts[0], gas: 300000}, cb);
         },
         function(cb) {
