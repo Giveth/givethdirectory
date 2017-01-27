@@ -83,7 +83,7 @@ function deployExample(cb) {
                 "http://www.giveth.io",
                 "0x0",
                 vault.contract.address,
-                milestoneTracker.console.address,
+                milestoneTracker.contract.address,
                 "", {from: eth.accounts[0], gas: 300000}, cb);
         },
         function(cb) {
