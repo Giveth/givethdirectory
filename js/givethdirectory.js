@@ -32,7 +32,7 @@ export default class GivethDirectory {
             (cb1) => {
                 async.eachSeries(_.range(0, nCampaigns), (idCampaign, cb2) => {
                     this.contract.getCampaign(idCampaign, (err, res) => {
-                        if (err) { cb(err); return; }
+                        if (err) { cb2(err); return; }
                         const campaigStatus = [
                             "Preparing",
                             "Active",
