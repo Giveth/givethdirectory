@@ -60,7 +60,7 @@ var GivethDirectory = function () {
                 _async2.default.eachSeries(_lodash2.default.range(0, nCampaigns), function (idCampaign, cb2) {
                     _this.contract.getCampaign(idCampaign, function (err, res) {
                         if (err) {
-                            cb(err);return;
+                            cb2(err);return;
                         }
                         var campaigStatus = ["Preparing", "Active", "Obsoleted", "Deleted"];
                         var c = {
