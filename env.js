@@ -12,6 +12,7 @@ var async = require('async');
 
 var GivethDirectory = require('./dist/givethdirectory.js');
 var Vault = require('vaultcontract');
+var MiniMeToken = require('minimetoken');
 var MilestoneTracker = require('milestonetracker');
 
 var gcb = function(err, res) {
@@ -24,6 +25,7 @@ var gcb = function(err, res) {
 
 var givethDirectory;
 var vault;
+var minimeToken;
 
 var escapeCaller = eth.accounts[1];
 var escapeDestination = eth.accounts[2];
@@ -63,6 +65,18 @@ function deployExample(cb) {
                 })
         },
         function(cb) {
+            MiniMeToken.deploy(web3, {
+                tokenName: "MiniMe Giveth Test Token",
+                decimalUnits: 18,
+                tokenSymbol: "GVT",
+            }, function(err, _minimeToken) {
+                if (err) return err;
+                minimeToken = _minimeToken;
+                console.log("Minime Token: " + minimeToken.contract.address);
+                cb();
+            });
+        },
+        function(cb) {
             MilestoneTracker.deploy(
                 web3,
                 {
@@ -78,10 +92,20 @@ function deployExample(cb) {
                 });
         },
         function(cb) {
+            vault.contract.authorizeSpender(
+                milestoneTracker.contract.address,
+                true,
+                {
+                    from: eth.accounts[0]
+                },
+                cb
+                )
+        },
+        function(cb) {
             givethDirectory.contract.addCampaign("Giveth Test",
                 "Development of Giveth. Donations 3.0",
                 "http://www.giveth.io",
-                "0x0",
+                minimeToken.contract.address,
                 vault.contract.address,
                 milestoneTracker.contract.address,
                 "", {from: eth.accounts[0], gas: 300000}, cb);

@@ -1,6 +1,9 @@
 import async from "async";
 import _ from "lodash";
 import MilestoneTracker from "milestonetracker";
+import Vault from "vaultcontract";
+import MiniMeToken from "minimetoken";
+import { deploy } from "runethtx";
 import { GivethDirectoryAbi, GivethDirectoryByteCode } from "../contracts/GivethDirectory.sol.js";
 
 export default class GivethDirectory {
@@ -16,14 +19,14 @@ export default class GivethDirectory {
         async.series([
             (cb1) => {
                 this.contract.owner((err, _owner) => {
-                    if (err) { cb(err); return; }
+                    if (err) { cb1(err); return; }
                     st.owner = _owner;
                     cb1();
                 });
             },
             (cb1) => {
                 this.contract.numberOfCampaigns((err, res) => {
-                    if (err) { cb(err); return; }
+                    if (err) { cb1(err); return; }
                     nCampaigns = res.toNumber();
                     st.campaigns = [];
                     cb1();
@@ -49,13 +52,36 @@ export default class GivethDirectory {
                             extra: res[ 6 ],
                             status: campaigStatus[ res[ 7 ].toNumber() ],
                         };
-                        const mt = new MilestoneTracker(this.web3, c.milestoneTrackerAddress);
-                        mt.getState((err2, mtState) => {
-                            if (err2) { cb1(err2); return; }
-                            c.milestoneTracker = mtState;
-                            st.campaigns.push(c);
-                            cb2();
-                        });
+                        st.campaigns.push(c);
+                        async.series([
+                            (cb3) => {
+                                const mt =
+                                    new MilestoneTracker(this.web3, c.milestoneTrackerAddress);
+                                mt.getState((err2, mtState) => {
+                                    if (err2) { cb3(err2); return; }
+                                    c.milestoneTracker = mtState;
+                                    cb3();
+                                });
+                            },
+                            (cb3) => {
+                                const vt =
+                                    new Vault(this.web3, c.vaultAddress);
+                                vt.getState((err2, vState) => {
+                                    if (err2) { cb3(err2); return; }
+                                    c.vault = vState;
+                                    cb3();
+                                });
+                            },
+                            (cb3) => {
+                                const token =
+                                    new MiniMeToken(this.web3, c.tokenAddress);
+                                token.getState((err2, tState) => {
+                                    if (err2) { cb3(err2); return; }
+                                    c.token = tState;
+                                    cb3();
+                                });
+                            },
+                        ], cb2);
                     });
                 }, cb1);
             },
@@ -66,43 +92,30 @@ export default class GivethDirectory {
     }
 
     static deploy(web3, opts, cb) {
-        let account;
-        let givethDirectory;
-        async.series([
-            (cb1) => {
-                if (opts.from) {
-                    account = opts.from;
-                    cb1();
-                } else {
-                    web3.eth.getAccounts((err, _accounts) => {
-                        if (err) { cb(err); return; }
-                        if (_accounts.length === 0) return cb1(new Error("No account to deploy a contract"));
-                        account = _accounts[ 0 ];
-                        cb1();
-                    });
+        const params = Object.assign({}, opts);
+        const promise = new Promise((resolve, reject) => {
+            params.abi = GivethDirectoryAbi;
+            params.byteCode = GivethDirectoryByteCode;
+            return deploy(web3, params, (err, _givethDirectory) => {
+                if (err) {
+                    reject(err);
+                    return;
                 }
-            },
-            (cb2) => {
-                const contract = web3.eth.contract(GivethDirectoryAbi);
-                contract.new(
-                    {
-                        from: account,
-                        data: GivethDirectoryByteCode,
-                        gas: 3000000,
-                        value: opts.value || 0,
-                    },
-                    (err, _contract) => {
-                        if (err) { cb2(err); return; }
-                        if (typeof _contract.address !== "undefined") {
-                            givethDirectory = new GivethDirectory(web3, _contract.address);
-                            cb2();
-                        }
-                    });
-            },
-        ],
-        (err) => {
-            if (err) return cb(err);
-            cb(null, givethDirectory);
+                const givethDirectory = new GivethDirectory(web3, _givethDirectory.address);
+                resolve(givethDirectory);
+            });
         });
+
+        if (cb) {
+            promise.then(
+                (value) => {
+                    cb(null, value);
+                },
+                (reason) => {
+                    cb(reason);
+                });
+        } else {
+            return promise;
+        }
     }
 }

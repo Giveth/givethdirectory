@@ -18,6 +18,16 @@ var _milestonetracker = require("milestonetracker");
 
 var _milestonetracker2 = _interopRequireDefault(_milestonetracker);
 
+var _vaultcontract = require("vaultcontract");
+
+var _vaultcontract2 = _interopRequireDefault(_vaultcontract);
+
+var _minimetoken = require("minimetoken");
+
+var _minimetoken2 = _interopRequireDefault(_minimetoken);
+
+var _runethtx = require("runethtx");
+
 var _GivethDirectorySol = require("../contracts/GivethDirectory.sol.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -42,7 +52,7 @@ var GivethDirectory = function () {
             _async2.default.series([function (cb1) {
                 _this.contract.owner(function (err, _owner) {
                     if (err) {
-                        cb(err);return;
+                        cb1(err);return;
                     }
                     st.owner = _owner;
                     cb1();
@@ -50,7 +60,7 @@ var GivethDirectory = function () {
             }, function (cb1) {
                 _this.contract.numberOfCampaigns(function (err, res) {
                     if (err) {
-                        cb(err);return;
+                        cb1(err);return;
                     }
                     nCampaigns = res.toNumber();
                     st.campaigns = [];
@@ -73,15 +83,35 @@ var GivethDirectory = function () {
                             extra: res[6],
                             status: campaigStatus[res[7].toNumber()]
                         };
-                        var mt = new _milestonetracker2.default(_this.web3, c.milestoneTrackerAddress);
-                        mt.getState(function (err2, mtState) {
-                            if (err2) {
-                                cb1(err2);return;
-                            }
-                            c.milestoneTracker = mtState;
-                            st.campaigns.push(c);
-                            cb2();
-                        });
+                        st.campaigns.push(c);
+                        _async2.default.series([function (cb3) {
+                            var mt = new _milestonetracker2.default(_this.web3, c.milestoneTrackerAddress);
+                            mt.getState(function (err2, mtState) {
+                                if (err2) {
+                                    cb3(err2);return;
+                                }
+                                c.milestoneTracker = mtState;
+                                cb3();
+                            });
+                        }, function (cb3) {
+                            var vt = new _vaultcontract2.default(_this.web3, c.vaultAddress);
+                            vt.getState(function (err2, vState) {
+                                if (err2) {
+                                    cb3(err2);return;
+                                }
+                                c.vault = vState;
+                                cb3();
+                            });
+                        }, function (cb3) {
+                            var token = new _minimetoken2.default(_this.web3, c.tokenAddress);
+                            token.getState(function (err2, tState) {
+                                if (err2) {
+                                    cb3(err2);return;
+                                }
+                                c.token = tState;
+                                cb3();
+                            });
+                        }], cb2);
                     });
                 }, cb1);
             }], function (err) {
@@ -94,42 +124,29 @@ var GivethDirectory = function () {
     }], [{
         key: "deploy",
         value: function deploy(web3, opts, cb) {
-            var account = void 0;
-            var givethDirectory = void 0;
-            _async2.default.series([function (cb1) {
-                if (opts.from) {
-                    account = opts.from;
-                    cb1();
-                } else {
-                    web3.eth.getAccounts(function (err, _accounts) {
-                        if (err) {
-                            cb(err);return;
-                        }
-                        if (_accounts.length === 0) return cb1(new Error("No account to deploy a contract"));
-                        account = _accounts[0];
-                        cb1();
-                    });
-                }
-            }, function (cb2) {
-                var contract = web3.eth.contract(_GivethDirectorySol.GivethDirectoryAbi);
-                contract.new({
-                    from: account,
-                    data: _GivethDirectorySol.GivethDirectoryByteCode,
-                    gas: 3000000,
-                    value: opts.value || 0
-                }, function (err, _contract) {
+            var params = Object.assign({}, opts);
+            var promise = new Promise(function (resolve, reject) {
+                params.abi = _GivethDirectorySol.GivethDirectoryAbi;
+                params.byteCode = _GivethDirectorySol.GivethDirectoryByteCode;
+                return (0, _runethtx.deploy)(web3, params, function (err, _givethDirectory) {
                     if (err) {
-                        cb2(err);return;
+                        reject(err);
+                        return;
                     }
-                    if (typeof _contract.address !== "undefined") {
-                        givethDirectory = new GivethDirectory(web3, _contract.address);
-                        cb2();
-                    }
+                    var givethDirectory = new GivethDirectory(web3, _givethDirectory.address);
+                    resolve(givethDirectory);
                 });
-            }], function (err) {
-                if (err) return cb(err);
-                cb(null, givethDirectory);
             });
+
+            if (cb) {
+                promise.then(function (value) {
+                    cb(null, value);
+                }, function (reason) {
+                    cb(reason);
+                });
+            } else {
+                return promise;
+            }
         }
     }]);
 
