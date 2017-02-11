@@ -26,6 +26,7 @@ var gcb = function(err, res) {
 var givethDirectory;
 var vault;
 var minimeToken;
+var milestoneTracker;
 
 var escapeCaller = eth.accounts[1];
 var escapeDestination = eth.accounts[2];
