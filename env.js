@@ -204,23 +204,79 @@ function deployExample2(_cb) {
             }, cb1);
         },
         (cb1) => {
-            for (let i = 0; i < 4; i += 1) {
-                milestones.push({
-                    description: "Proposal " + i,
-                    url: "http://www.giveth.io/?idProposal=" + i,
+            milestones= [
+                {
+                    description: "Proposal 1",
+                    url: "http://www.giveth.io/?idProposal=1",
                     minCompletionDate: now - 86400,
                     maxCompletionDate: now + (86400 * 3),
                     reviewer,
                     milestoneLeadLink,
                     reviewTime: 86400 * 2,
                     paymentSource: vault[ 0 ].contract.address,
-                    payData: vault[ 0 ].contract.authorizePayment.getData("Proposal " + i, recipient, web3.toWei(i + 1), 0),
-                    payDescription: "Proposal " + i,
+                    payData: vault[ 0 ].contract.authorizePayment.getData("Proposal 1", recipient, web3.toWei(100), 0),
+                    payDescription: "Proposal 1",
                     payRecipient: recipient,
-                    payValue: new BigNumber(web3.toWei(i + 1)),
+                    payValue: new BigNumber(web3.toWei(100)),
                     payDelay: 0,
-                });
-            }
+                },
+                {
+                    description: "Proposal 2",
+                    url: "http://www.giveth.io/?idProposal=1",
+                    minCompletionDate: now - 86400,
+                    maxCompletionDate: now + (86400 * 3),
+                    reviewer,
+                    milestoneLeadLink,
+                    reviewTime: 86400 * 2,
+                    paymentSource: vault[ 0 ].contract.address,
+                    payDescription: "Proposal 1",
+                    payRecipient: recipient,
+                    payValue: new BigNumber(web3.toWei(100)),
+                    payDelay: 0,
+                },
+                {
+                    description: "Proposal 1",
+                    url: "http://www.giveth.io/?idProposal=1",
+                    minCompletionDate: now - 86400,
+                    maxCompletionDate: now + (86400 * 3),
+                    reviewer,
+                    milestoneLeadLink,
+                    reviewTime: 86400 * 2,
+                    paymentSource: vault[ 0 ].contract.address,
+                    payDescription: "Proposal 1",
+                    payRecipient: recipient,
+                    payValue: new BigNumber(web3.toWei(100)),
+                    payDelay: 0,
+                },
+                {
+                    description: "Proposal 1",
+                    url: "http://www.giveth.io/?idProposal=1",
+                    minCompletionDate: now - 86400,
+                    maxCompletionDate: now + (86400 * 3),
+                    reviewer,
+                    milestoneLeadLink,
+                    reviewTime: 86400 * 2,
+                    paymentSource: vault[ 0 ].contract.address,
+                    payDescription: "Proposal 1",
+                    payRecipient: recipient,
+                    payValue: new BigNumber(web3.toWei(100)),
+                    payDelay: 0,
+                },
+                {
+                    description: "Proposal 1",
+                    url: "http://www.giveth.io/?idProposal=1",
+                    minCompletionDate: now - 86400,
+                    maxCompletionDate: now + (86400 * 3),
+                    reviewer,
+                    milestoneLeadLink,
+                    reviewTime: 86400 * 2,
+                    paymentSource: vault[ 0 ].contract.address,
+                    payDescription: "Proposal 1",
+                    payRecipient: recipient,
+                    payValue: new BigNumber(web3.toWei(100)),
+                    payDelay: 0,
+                },
+            ];
 
             console.log("Propose");
             milestoneTracker[ 0 ].proposeMilestones({
