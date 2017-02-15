@@ -162,7 +162,7 @@ function deployExample(_cb) {
 
 function deployExample2(_cb) {
     const cb = _cb || gcb;
-    const milestones = [];
+    let milestones;
     let hashProposals;
     async.series([
         (cb1) => {
@@ -326,3 +326,11 @@ function deployExample2(_cb) {
         },
     ], cb);
 }
+
+deployExample2((err) => {
+    if (err) {
+        console.log("ERROR: " + err);
+        return;
+    }
+    givethDirectory.getState(gcb);
+});
