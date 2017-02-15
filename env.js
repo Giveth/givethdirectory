@@ -324,6 +324,30 @@ function deployExample2(_cb) {
                 from: reviewer,
             }, cb1);
         },
+        (cb1) => {
+            console.log("Buy tokens 1");
+            givethCampaign[ 0 ].donate({
+                from: eth.accounts[ 0 ],
+                owner: eth.accounts[ 0 ],
+                value: web3.toWei(30),
+            }, cb1);
+        },
+        (cb1) => {
+            console.log("Buy tokens 2");
+            givethCampaign[ 0 ].donate({
+                from: eth.accounts[ 1 ],
+                owner: eth.accounts[ 1 ],
+                value: web3.toWei(40),
+            }, cb1);
+        },
+        (cb1) => {
+            console.log("Buy tokens 3");
+            givethCampaign[ 0 ].donate({
+                from: eth.accounts[ 2 ],
+                owner: eth.accounts[ 2 ],
+                value: web3.toWei(40),
+            }, cb1);
+        },
     ], cb);
 }
 
