@@ -110,6 +110,7 @@ function deployCampaign(opts, _cb) {
                 });
         },
         (cb1) => {
+            console.log("Authorize Spender");
             vault[ idCampaign ].contract.authorizeSpender(
                 milestoneTracker[ idCampaign ].contract.address,
                 true,
@@ -119,16 +120,18 @@ function deployCampaign(opts, _cb) {
                 cb1);
         },
         (cb1) => {
+            console.log("Add Campaign");
             givethDirectory.contract.addCampaign(
-                "Giveth Test" || opts.campaignName,
-                "Development of Giveth. Donations 3.0" || opts.campaignDescription,
-                "http://www.giveth.io" || opts.campaignWeb,
+                opts.campaignName || "Giveth Test",
+                opts.campaignDescription || "Development of Giveth. Donations 3.0",
+                opts.campaignWeb || "http://www.giveth.io",
                 miniMeToken[ idCampaign ].contract.address,
                 vault[ idCampaign ].contract.address,
                 milestoneTracker[ idCampaign ].contract.address,
-                "", { from: eth.accounts[ 0 ], gas: 300000 }, cb1);
+                "", { from: eth.accounts[ 0 ], gas: 4000000 }, cb1);
         },
         (cb1) => {
+            console.log("Change campaign status");
             givethDirectory.contract.changeStatus(idCampaign, 1, { from: eth.accounts[ 0 ] }, cb1);
         },
     ], cb);
