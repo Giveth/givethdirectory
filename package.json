@@ -39,7 +39,7 @@
     "async": "^2.1.4",
     "givethcampaign": "0.0.2",
     "lodash": "^4.17.4",
-    "milestonetracker": "^0.1.36",
+    "milestonetracker": "^0.1.37",
     "minimetoken": "^0.1.4",
     "multisigwallet": "0.0.2",
     "runethtx": "0.0.7",
