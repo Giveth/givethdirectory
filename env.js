@@ -13,6 +13,7 @@ const Vault = require("vaultcontract");
 const MiniMeToken = require("minimetoken");
 const MilestoneTracker = require("milestonetracker");
 const GivethCampaign = require("givethcampaign");
+const Multisig = require("multisigwallet");
 
 const gcb = (err, res) => {
     if (err) {
@@ -27,6 +28,7 @@ let vault = [];
 let miniMeToken = [];
 let milestoneTracker = [];
 let givethCampaign = [];
+let multisig;
 
 const now = Math.floor(new Date().getTime() / 1000);
 
@@ -180,6 +182,25 @@ function deployExample2(_cb) {
             });
         },
         (cb1) => {
+            Multisig.deploy(web3, {
+                owners: [
+                    eth.accounts[ 0 ],
+                    eth.accounts[ 1 ],
+                    eth.accounts[ 2 ],
+                ],
+                required: 2,
+                from: eth.accounts[1],
+            }, (err, _multisig) => {
+                if (err) {
+                    cb1(err);
+                    return;
+                }
+                multisig = _multisig;
+                console.log("Multisig: " + _multisig.contract.address);
+                cb1();
+            });
+        },
+        (cb1) => {
             deployCampaign({
                 tokenName: "Giveth Development",
                 tokenSymbol: "MM1",
@@ -288,6 +309,13 @@ function deployExample2(_cb) {
             }, cb1);
         },
         (cb1) => {
+            console.log("Propose");
+            milestoneTracker[ 1 ].proposeMilestones({
+                newMilestones: milestones,
+                from: recipient,
+            }, cb1);
+        },
+        (cb1) => {
             console.log("Get State");
             milestoneTracker[ 0 ].getState((err, st) => {
                 if (err) {
@@ -349,6 +377,27 @@ function deployExample2(_cb) {
                 from: eth.accounts[ 2 ],
                 owner: eth.accounts[ 2 ],
                 value: web3.toWei(40),
+            }, cb1);
+        },
+        (cb1) => {
+            console.log("Change donor to multisig 0");
+            milestoneTracker[ 0 ].changeDonor({
+                from: donor,
+                newDonor: multisig.contract.address,
+            }, cb1);
+        },
+        (cb1) => {
+            console.log("Change donor to multisig 0");
+            milestoneTracker[ 1 ].changeDonor({
+                from: donor,
+                newDonor: multisig.contract.address,
+            }, cb1);
+        },
+        (cb1) => {
+            console.log("Change donor to multisig 0");
+            milestoneTracker[ 2 ].changeDonor({
+                from: donor,
+                newDonor: multisig.contract.address,
             }, cb1);
         },
     ], cb);
