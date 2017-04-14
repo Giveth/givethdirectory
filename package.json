@@ -1,6 +1,6 @@
 {
   "name": "givethdirectory",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "description": "Giveth Campaign Directory",
   "main": "dist/givethdirectory.js",
   "directories": {
@@ -43,7 +43,7 @@
     "minimetoken": "^0.1.4",
     "multisigwallet": "0.0.3",
     "runethtx": "0.0.7",
-    "vaultcontract": "^0.2.15",
+    "vaultcontract": "0.2.15",
     "web3": "^0.18.2"
   }
 }
