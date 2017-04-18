@@ -1,6 +1,6 @@
 {
   "name": "givethdirectory",
-  "version": "0.0.34",
+  "version": "0.1.0",
   "description": "Giveth Campaign Directory",
   "main": "dist/givethdirectory.js",
   "directories": {
