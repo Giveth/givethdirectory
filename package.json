@@ -37,7 +37,8 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-preset-stage-3": "^6.24.1",
     "babel-register": "^6.24.1",
-    "ethconnector": "0.0.24"
+    "ethconnector": "0.0.24",
+    "truffle": "^3.2.1"
   },
   "dependencies": {
     "async": "^2.1.4",
