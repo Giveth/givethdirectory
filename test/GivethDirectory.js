@@ -1,12 +1,14 @@
 'use strict';
 
 const assertJump = require('./helpers/assertJump');
+const assertWasNotAdded = require('./helpers/assertWasNotAdded');
 var GivethDirectory = artifacts.require('../contracts/GivethDirectory.sol');
 const CampaignStatus = {
   'Preparing': 0,
   'Active': 1,
   'Obsolted': 2,
-  'Deleted': 3
+  'Deleted': 3,
+  'THROWS_ERROR': 999
 };
 
 contract('GivethDirectory', accounts => {
@@ -69,6 +71,17 @@ contract('GivethDirectory', accounts => {
       );
     } catch(error) {
       assertJump(error);
+    }
+  });
+
+  it('errors if fields are missing when adding a Campaign', async () => {
+    try{
+      await givethDirectory.addCampaign(
+        testCampaign.name,
+        testCampaign.description
+      );
+    } catch(error) {
+      assertWasNotAdded(error);
     }
   });
 
@@ -135,19 +148,6 @@ contract('GivethDirectory', accounts => {
   /**********************************
             updateCampaign
   *********************************/
-  it('gets the number of campaigns', async () => {
-
-    const campaign = await givethDirectory.addCampaign(
-      testCampaign.name,
-      testCampaign.description,
-      testCampaign.url,
-      testCampaign.token,
-      testCampaign.vault,
-      testCampaign.milestoneTracker,
-      testCampaign.extra
-    );
-  });
-
   it('can update the campaign', async () => {
     const campaign = await givethDirectory.addCampaign(
       testCampaign.name,
@@ -236,10 +236,32 @@ contract('GivethDirectory', accounts => {
     }
   });
 
+  it('errors if fields are missing when updating a Campaign', async () => {
+    const campaign = await givethDirectory.addCampaign(
+      testCampaign.name,
+      testCampaign.description,
+      testCampaign.url,
+      testCampaign.token,
+      testCampaign.vault,
+      testCampaign.milestoneTracker,
+      testCampaign.extra
+    );
+
+    try{
+      await givethDirectory.updateCampaign(
+        0, 
+        testCampaign.name + '_update',
+        testCampaign.description + '_update'
+      );
+    } catch(error) {
+      assertWasNotAdded(error);
+    }
+  });
+
   /**********************************
             changeStatus
   *********************************/
-  it('can update the campaign', async () => {
+  it('can change the campaign status', async () => {
     const statusIdx = 7;
     const campaign = await givethDirectory.addCampaign(
       testCampaign.name,
@@ -254,6 +276,63 @@ contract('GivethDirectory', accounts => {
     await givethDirectory.changeStatus(0, CampaignStatus.Obsolted);
     const updated = await givethDirectory.getCampaign(0);
     assert.equal(updated[statusIdx].c, CampaignStatus.Obsolted);
+  });
+
+  it('prevents the campaign status from being changed by non-owners', async () => {
+    const statusIdx = 7;
+    const campaign = await givethDirectory.addCampaign(
+      testCampaign.name,
+      testCampaign.description,
+      testCampaign.url,
+      testCampaign.token,
+      testCampaign.vault,
+      testCampaign.milestoneTracker,
+      testCampaign.extra
+    );
+
+    try {
+      await givethDirectory.changeStatus(0, CampaignStatus.Obsolted, { from : accounts[9] });
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
+  it('prevents the campaign status from being set to an invalid value', async () => {
+    const statusIdx = 7;
+    const campaign = await givethDirectory.addCampaign(
+      testCampaign.name,
+      testCampaign.description,
+      testCampaign.url,
+      testCampaign.token,
+      testCampaign.vault,
+      testCampaign.milestoneTracker,
+      testCampaign.extra
+    );
+
+    try {
+      await givethDirectory.changeStatus(0, CampaignStatus.THROWS_ERROR);
+    } catch(error) {
+      assertJump(error);
+    }
+  });
+
+  it('prevents the campaign status from being set when the campaign index is out of bounds', async () => {
+    const statusIdx = 7;
+    const campaign = await givethDirectory.addCampaign(
+      testCampaign.name,
+      testCampaign.description,
+      testCampaign.url,
+      testCampaign.token,
+      testCampaign.vault,
+      testCampaign.milestoneTracker,
+      testCampaign.extra
+    );
+
+    try {
+      await givethDirectory.changeStatus(1, CampaignStatus.Obsolted);
+    } catch(error) {
+      assertJump(error);
+    }
   });
 
 });
