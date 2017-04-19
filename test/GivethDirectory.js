@@ -2,6 +2,12 @@
 
 const assertJump = require('./helpers/assertJump');
 var GivethDirectory = artifacts.require('../contracts/GivethDirectory.sol');
+const CampaignStatus = {
+  'Preparing': 0,
+  'Active': 1,
+  'Obsolted': 2,
+  'Deleted': 3
+};
 
 contract('GivethDirectory', accounts => {
   let givethDirectory;
@@ -21,7 +27,7 @@ contract('GivethDirectory', accounts => {
 
   /**********************************
               CONSTRUCTOR
-   *********************************/
+  *********************************/
   it('should have an owner', async () => {
     let owner = await givethDirectory.owner();
     assert.isTrue(owner !== 0);
@@ -34,7 +40,7 @@ contract('GivethDirectory', accounts => {
 
   /**********************************
               addCampaign
-   *********************************/
+  *********************************/
   it('allows new campaigns to be added', async () => {
     const campaignId = await givethDirectory.addCampaign(
       testCampaign.name,
@@ -68,7 +74,7 @@ contract('GivethDirectory', accounts => {
 
   /**********************************
               getCampaign
-   *********************************/
+  *********************************/
   it('gets a campaign by id', async () => {
     const campaign = await givethDirectory.addCampaign(
       testCampaign.name,
@@ -110,7 +116,7 @@ contract('GivethDirectory', accounts => {
 
   /**********************************
             numberOfCampaigns
-   *********************************/
+  *********************************/
   it('gets the number of campaigns', async () => {
     const campaign = await givethDirectory.addCampaign(
       testCampaign.name,
@@ -128,8 +134,8 @@ contract('GivethDirectory', accounts => {
 
   /**********************************
             updateCampaign
-   *********************************/
-   it('gets the number of campaigns', async () => {
+  *********************************/
+  it('gets the number of campaigns', async () => {
 
     const campaign = await givethDirectory.addCampaign(
       testCampaign.name,
@@ -229,4 +235,25 @@ contract('GivethDirectory', accounts => {
       assertJump(error);
     }
   });
+
+  /**********************************
+            changeStatus
+  *********************************/
+  it('can update the campaign', async () => {
+    const statusIdx = 7;
+    const campaign = await givethDirectory.addCampaign(
+      testCampaign.name,
+      testCampaign.description,
+      testCampaign.url,
+      testCampaign.token,
+      testCampaign.vault,
+      testCampaign.milestoneTracker,
+      testCampaign.extra
+    );
+
+    await givethDirectory.changeStatus(0, CampaignStatus.Obsolted);
+    const updated = await givethDirectory.getCampaign(0);
+    assert.equal(updated[statusIdx].c, CampaignStatus.Obsolted);
+  });
+
 });
