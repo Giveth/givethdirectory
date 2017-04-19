@@ -127,7 +127,7 @@ contract('GivethDirectory', accounts => {
   });
 
   /**********************************
-            numberOfCampaigns
+            updateCampaign
    *********************************/
    it('gets the number of campaigns', async () => {
 
