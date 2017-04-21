@@ -64,8 +64,9 @@ contract('GivethDirectory', accounts => {
     try {
       await campaignAdder(9);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
   it('errors if fields are missing when adding a Campaign', async () => {
@@ -100,8 +101,9 @@ contract('GivethDirectory', accounts => {
     try {
       await givethDirectory.getCampaign(1);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
   /**********************************
@@ -156,8 +158,9 @@ contract('GivethDirectory', accounts => {
         { from: accounts[9] }
       );
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
   it('errors when provided an invalid campaign id', async () => {
@@ -176,8 +179,9 @@ contract('GivethDirectory', accounts => {
         { from: accounts[9] }
       );
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
   it('errors if fields are missing when updating a Campaign', async () => {
@@ -213,8 +217,9 @@ contract('GivethDirectory', accounts => {
     try {
       await givethDirectory.changeStatus(0, CampaignStatus.Obsolted, { from : accounts[9] });
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
   it('prevents the campaign status from being set to an invalid value', async () => {
@@ -224,8 +229,9 @@ contract('GivethDirectory', accounts => {
     try {
       await givethDirectory.changeStatus(0, CampaignStatus.THROWS_ERROR);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
   it('prevents the campaign status from being set when the campaign index is out of bounds', async () => {
@@ -235,8 +241,9 @@ contract('GivethDirectory', accounts => {
     try {
       await givethDirectory.changeStatus(1, CampaignStatus.Obsolted);
     } catch(error) {
-      assertJump(error);
+      return assertJump(error);
     }
+    assert.fail("should have thrown before");
   });
 
 });
