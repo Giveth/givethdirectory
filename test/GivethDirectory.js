@@ -38,6 +38,17 @@ contract('GivethDirectory', accounts => {
     givethDirectory = await GivethDirectory.new();
   });
 
+  const errorAsserter = (fn, errFn) => {
+    return async(...args) => {
+      try {
+        return await fn(...args.join());
+      } catch(error) {
+        return errFn(error);
+      }
+      return assert.fail('should have thrown before');
+    }
+  }
+
   /**********************************
               CONSTRUCTOR
   *********************************/
@@ -60,13 +71,17 @@ contract('GivethDirectory', accounts => {
     assert.equal(numCampaigns, 1);
   });
 
+  // it.only('prevents campaigns from being added by non-owners', async () => {
+  //   try {
+  //     const res = await campaignAdder(9);
+  //   } catch(error) {
+  //     return assertJump(error);
+  //   }
+  //   assert.fail("should have thrown before");
+  // });
+
   it('prevents campaigns from being added by non-owners', async () => {
-    try {
-      await campaignAdder(9);
-    } catch(error) {
-      return assertJump(error);
-    }
-    assert.fail("should have thrown before");
+    await errorAsserter(campaignAdder, assertJump)(9);
   });
 
   it('errors if fields are missing when adding a Campaign', async () => {
@@ -79,6 +94,7 @@ contract('GivethDirectory', accounts => {
       assertWasNotAdded(error);
     }
   });
+
 
   /**********************************
               getCampaign
