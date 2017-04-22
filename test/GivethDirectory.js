@@ -21,18 +21,23 @@ contract('GivethDirectory', accounts => {
     vault: accounts[2],
     milestoneTracker: accounts[3],
     extra: 'test-campaign-extra'
-  }
+  };
 
-  const campaignAdder = (account) => givethDirectory.addCampaign(
-    testCampaign.name,
-    testCampaign.description,
-    testCampaign.url,
-    testCampaign.token,
-    testCampaign.vault,
-    testCampaign.milestoneTracker,
-    testCampaign.extra,
-    { from: accounts[account || 0] }
-  );
+  const campaignAdder = (values) => {
+      let account = values ? values[0] : 0;
+      let args = values ? values.slice(1) : Object.values(testCampaign);
+
+      givethDirectory.addCampaign(
+      args[0] || null,
+      args[1] || null,
+      args[2] || null,
+      args[3] || null,
+      args[4] || null,
+      args[5] || null,
+      args[6] || null,
+      { from: accounts[account || 0] }
+    );
+  }
 
   beforeEach(async function() {
     givethDirectory = await GivethDirectory.new();
@@ -41,7 +46,7 @@ contract('GivethDirectory', accounts => {
   const errorAsserter = (fn, errFn) => {
     return async(...args) => {
       try {
-        return await fn(...args.join());
+        return await fn(args);
       } catch(error) {
         return errFn(error);
       }
@@ -71,28 +76,12 @@ contract('GivethDirectory', accounts => {
     assert.equal(numCampaigns, 1);
   });
 
-  // it.only('prevents campaigns from being added by non-owners', async () => {
-  //   try {
-  //     const res = await campaignAdder(9);
-  //   } catch(error) {
-  //     return assertJump(error);
-  //   }
-  //   assert.fail("should have thrown before");
-  // });
-
   it('prevents campaigns from being added by non-owners', async () => {
     await errorAsserter(campaignAdder, assertJump)(9);
   });
 
   it('errors if fields are missing when adding a Campaign', async () => {
-    try{
-      await givethDirectory.addCampaign(
-        testCampaign.name,
-        testCampaign.description
-      );
-    } catch(error) {
-      assertWasNotAdded(error);
-    }
+    await errorAsserter(campaignAdder, assertWasNotAdded)(0, testCampaign.name, testCampaign.description);
   });
 
 
@@ -100,7 +89,7 @@ contract('GivethDirectory', accounts => {
               getCampaign
   *********************************/
   it('gets a campaign by id', async () => {
-    const campaign = await campaignAdder();
+    await campaignAdder();
 
     const retrievedCampaign = await givethDirectory.getCampaign(0);
     assert.equal(retrievedCampaign[0], testCampaign.name);
@@ -113,13 +102,8 @@ contract('GivethDirectory', accounts => {
   });
 
   it('fails to get campaigns at invalid ids', async () => {
-    const campaign = await campaignAdder();
-    try {
-      await givethDirectory.getCampaign(1);
-    } catch(error) {
-      return assertJump(error);
-    }
-    assert.fail("should have thrown before");
+    await campaignAdder();
+    await errorAsserter(givethDirectory.getCampaign, assertJump)(1);
   });
 
   /**********************************
@@ -200,18 +184,27 @@ contract('GivethDirectory', accounts => {
     assert.fail("should have thrown before");
   });
 
-  it('errors if fields are missing when updating a Campaign', async () => {
-    const campaign = await campaignAdder();
+  const updateProxy = (...[idx, name, description]) => {
+    console.log('name', name);
+    return givethDirectory.updateCampaign(idx, name, description);
+  }
 
-    try{
-      await givethDirectory.updateCampaign(
+  it.only('errors if fields are missing when updating a Campaign', async () => {
+    await campaignAdder();
+    await errorAsserter(updateProxy, assertWasNotAdded)(
         0, 
         testCampaign.name + '_update',
-        testCampaign.description + '_update'
-      );
-    } catch(error) {
-      assertWasNotAdded(error);
-    }
+        testCampaign.description + '_update'  
+    )
+    // try{
+    //   await givethDirectory.updateCampaign(
+    //     0, 
+    //     testCampaign.name + '_update',
+    //     testCampaign.description + '_update'
+    //   );
+    // } catch(error) {
+    //   assertWasNotAdded(error);
+    // }
   });
 
   /**********************************
@@ -227,8 +220,7 @@ contract('GivethDirectory', accounts => {
   });
 
   it('prevents the campaign status from being changed by non-owners', async () => {
-    const statusIdx = 7;
-    const campaign = await campaignAdder();
+    await campaignAdder();
 
     try {
       await givethDirectory.changeStatus(0, CampaignStatus.Obsolted, { from : accounts[9] });
