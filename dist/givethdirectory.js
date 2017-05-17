@@ -144,7 +144,7 @@ var GivethDirectory = function () {
                         cb1();
                     });
                 }, function (cb1) {
-                    var givethCampaign = new _givethcampaign2.default(_this2.web3, st.campaigns[opts.idCampaign].token.controller);
+                    var givethCampaign = new _givethcampaign2.default(_this2.web3, st.campaigns[opts.idCampaign].tokenAddress);
                     givethCampaign.donate(opts, function (err, _txHash) {
                         if (err) {
                             cb1(err);

@@ -127,7 +127,7 @@ export default class GivethDirectory {
                 (cb1) => {
                     const givethCampaign = new GivethCampaign(
                         this.web3,
-                        st.campaigns[ opts.idCampaign ].token.controller);
+                        st.campaigns[ opts.idCampaign ].tokenAddress);
                     givethCampaign.donate(opts, (err, _txHash) => {
                         if (err) {
                             cb1(err);
