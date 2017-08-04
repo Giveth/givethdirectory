@@ -83,7 +83,7 @@ contract('GivethDirectory', accounts => {
   it('allows new campaigns to be added', async () => {
     await campaignAddProxy();
     const numCampaigns = await givethDirectory.numberOfCampaigns();
-    assert.equal(numCampaigns, 1);
+    assert.equal(numCampaigns.toNumber(), 1);
   });
 
   it('prevents campaigns from being added by non-owners', async () => {
@@ -125,9 +125,9 @@ contract('GivethDirectory', accounts => {
   *********************************/
   it('can update the campaign', async () => {
     const campaign = await campaignAddProxy();
-    
+
     await givethDirectory.updateCampaign(
-      0, 
+      0,
       testCampaign.name + '_update',
       testCampaign.description + '_update',
       testCampaign.url + '_update',
@@ -150,7 +150,7 @@ contract('GivethDirectory', accounts => {
   it('prevents updating the campaign by non-owners', async () => {
     await campaignAddProxy();
     await errorAsserter(updateProxy, assertJump)(
-      0, 
+      0,
       testCampaign.name + '_update',
       testCampaign.description + '_update',
       testCampaign.url + '_update',
@@ -165,7 +165,7 @@ contract('GivethDirectory', accounts => {
   it('errors when provided an invalid campaign id', async () => {
     await campaignAddProxy();
     await errorAsserter(updateProxy, assertJump)(
-      7, 
+      7,
       testCampaign.name + '_update',
       testCampaign.description + '_update',
       testCampaign.url + '_update',
