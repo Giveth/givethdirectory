@@ -35,7 +35,7 @@ export default class GivethDirectory {
                     });
                 },
                 (cb1) => {
-                    async.eachSeries(_.range(0, nCampaigns), (idCampaign, cb2) => {
+                    async.each(_.range(0, nCampaigns), (idCampaign, cb2) => {
                         this.contract.getCampaign(idCampaign, (err, res) => {
                             if (err) { cb2(err); return; }
                             const campaigStatus = [
@@ -45,6 +45,7 @@ export default class GivethDirectory {
                                 "Deleted",
                             ];
                             const c = {
+                                idCampaign: idCampaign,
                                 name: res[ 0 ],
                                 description: res[ 1 ],
                                 url: res[ 2 ],
@@ -86,6 +87,10 @@ export default class GivethDirectory {
                             ], cb2);
                         });
                     }, cb1);
+                },
+                (cb1) => {
+                    st.campaigns.sort((a, b) => a.idCampaign - b.idCampaign)
+                    cb1();
                 },
             ], (err) => {
                 if (err) { cb(err); return; }
